@@ -1,0 +1,12 @@
+# Release-drafter config for the landau Hugo site.
+# Triggered by .github/workflows/release-drafter.yml on push to main.
+
+template: |
+  ## Что изменилось
+
+  $CHANGES
+
+  **Полный список:** https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...$RESOLVED_VERSION
+
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&'

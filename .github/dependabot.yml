@@ -1,0 +1,18 @@
+version: 2
+updates:
+  # GitHub Actions used in `.github/workflows/*.yml`.
+  # Hugo itself is not in any Dependabot ecosystem and is bumped by
+  # `.github/workflows/hugo-update.yml` instead.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Etc/UTC"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
+    open-pull-requests-limit: 5

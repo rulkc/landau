@@ -1,0 +1,127 @@
+name: Hugo update
+
+# Weekly check for new Hugo releases. Opens (or refreshes) a PR with a version
+# bump in `.hugo-version` and the matching `.hugo-sha256` after a successful
+# smoke-test build. Skips releases younger than 7 days (supply-chain soak).
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"   # Mondays 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+
+      - name: Compute current and latest Hugo version
+        id: versions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          current=$(tr -d '[:space:]' < .hugo-version)
+          latest=$(gh api repos/gohugoio/hugo/releases/latest --jq '.tag_name' | sed 's/^v//')
+          echo "current=${current}" >> "$GITHUB_OUTPUT"
+          echo "latest=${latest}"   >> "$GITHUB_OUTPUT"
+          echo "Current: v${current} | Latest: v${latest}"
+
+      - name: Skip if already up to date
+        if: steps.versions.outputs.current == steps.versions.outputs.latest
+        run: |
+          echo "Hugo already pinned to v${{ steps.versions.outputs.current }}, nothing to do."
+          echo "skip=true" >> "$GITHUB_ENV"
+
+      - name: Enforce 7-day release soak
+        if: env.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LATEST:   ${{ steps.versions.outputs.latest }}
+        run: |
+          set -euo pipefail
+          published=$(gh api "repos/gohugoio/hugo/releases/tags/v${LATEST}" --jq '.published_at')
+          age=$(( ($(date -u +%s) - $(date -u -d "${published}" +%s)) / 86400 ))
+          echo "Release v${LATEST} published ${published} (${age} days ago)"
+          if [ "${age}" -lt 7 ]; then
+            echo "::warning::v${LATEST} is ${age} days old, less than 7-day soak — skipping."
+            echo "skip=true" >> "$GITHUB_ENV"
+          fi
+
+      - name: Fetch SHA256 and update pins
+        if: env.skip != 'true'
+        id: bump
+        env:
+          LATEST: ${{ steps.versions.outputs.latest }}
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 3 \
+            "https://github.com/gohugoio/hugo/releases/download/v${LATEST}/hugo_${LATEST}_checksums.txt" \
+            -o /tmp/sums.txt
+          asset="hugo_extended_${LATEST}_linux-amd64.tar.gz"
+          sha=$(awk -v f="${asset}" '$2==f {print $1}' /tmp/sums.txt)
+          if [ -z "${sha}" ]; then
+            echo "::error::SHA256 not found for ${asset} in checksums.txt"
+            exit 1
+          fi
+          echo "${LATEST}" > .hugo-version
+          echo "${sha}"    > .hugo-sha256
+          echo "sha256=${sha}" >> "$GITHUB_OUTPUT"
+          echo "Pinned ${asset} → ${sha}"
+
+      - name: Smoke-test build with new Hugo
+        if: env.skip != 'true'
+        env:
+          HUGO_VERSION: ${{ steps.versions.outputs.latest }}
+          HUGO_SHA256:  ${{ steps.bump.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          tarball="hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+          url="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${tarball}"
+          curl -fsSL --retry 3 "${url}" -o /tmp/hugo.tar.gz
+          echo "${HUGO_SHA256}  /tmp/hugo.tar.gz" | sha256sum -c -
+          mkdir -p "${RUNNER_TEMP}/hugo"
+          tar -xzf /tmp/hugo.tar.gz -C "${RUNNER_TEMP}/hugo" hugo
+          "${RUNNER_TEMP}/hugo/hugo" --gc --minify --logLevel info
+
+      - name: Open or refresh PR
+        if: env.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CURRENT:  ${{ steps.versions.outputs.current }}
+          LATEST:   ${{ steps.versions.outputs.latest }}
+          SHA256:   ${{ steps.bump.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          branch="hugo-update/v${LATEST}"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "${branch}"
+          git add .hugo-version .hugo-sha256
+          git commit -m "ci(hugo): bump to v${LATEST}"
+          git push -u origin "${branch}" --force
+
+          if gh pr view "${branch}" --json number >/dev/null 2>&1; then
+            echo "PR for ${branch} already exists — push refreshed it."
+          else
+            body_file=$(mktemp "${TMPDIR:-/tmp}/hugo-bump-body.XXXXXX")
+            {
+              echo "Automated bump from \`v${CURRENT}\` to \`v${LATEST}\`."
+              echo
+              echo "* Source: https://github.com/gohugoio/hugo/releases/tag/v${LATEST}"
+              echo "* SHA256 (\`hugo_extended_${LATEST}_linux-amd64.tar.gz\`): \`${SHA256}\`"
+              echo "* Smoke-test: \`hugo --gc --minify\` ran successfully against the current site sources before this PR was opened."
+              echo
+              echo "Opened by \`.github/workflows/hugo-update.yml\`."
+            } > "${body_file}"
+            gh pr create \
+              --title "ci(hugo): bump from v${CURRENT} to v${LATEST}" \
+              --body-file "${body_file}"
+          fi

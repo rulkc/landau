@@ -1,3 +1,7 @@
+---
+title: "LANDAU Kernel"
+---
+
 # ⚛️ LANDAU Kernel
 
 **⚡ Linux kernel Advanced for Next-gen Devices & Architectures ⚡**
@@ -32,7 +36,7 @@
 
 ### 🎙️ Список событий
 
-*   **[Открытый микрофон #001: «Форк ядра. Инженеры для инженеров, или при чем тут LANDAU»](./open_mic_27_03_2026.md)**
+*   **[Открытый микрофон #001: «Форк ядра. Инженеры для инженеров, или при чем тут LANDAU»](/events/open-mic-001/)**
     *   **📅 Дата:** 27 марта 2026 года
     *   **⏰ Время:** 20:00
     *   **📍 Формат:** Очно / Online
@@ -60,7 +64,7 @@
 
 | | |
 |---|---|
-| <a href="http://rulkc.org" target="_blank"><img src="rulkc.png" alt="RULKC" width="120"></a> | **💬 Присоединяйтесь к обсуждению:**<br>Будьте в курсе всех новостей проекта ⚛️ LANDAU и мероприятий RULKC в нашем Telegram-канале:<br>[t.me/linux_kernel_O](https://t.me/linux_kernel_O) |
+| <a href="http://rulkc.org" target="_blank"><img src="/rulkc.png" alt="RULKC" width="120"></a> | **💬 Присоединяйтесь к обсуждению:**<br>Будьте в курсе всех новостей проекта ⚛️ LANDAU и мероприятий RULKC в нашем Telegram-канале:<br>[t.me/linux_kernel_O](https://t.me/linux_kernel_O) |
 
 <br>
 

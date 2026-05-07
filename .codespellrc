@@ -1,0 +1,6 @@
+[codespell]
+# codespell config: catches common English typos in markdown sources.
+# See https://github.com/codespell-project/codespell
+
+# Where to look. Avoid binary assets, build output, and the git/CI plumbing.
+skip = *.lock,*.png,*.jpg,*.jpeg,*.gz,*.tar,*.zip,*.ico,public,resources,.git,.github/dependabot.yml

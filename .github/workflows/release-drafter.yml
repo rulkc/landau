@@ -1,0 +1,53 @@
+name: Release Drafter
+
+# On every push to main, compute the next CalVer version (YYYY.MM.N) and
+# refresh the draft GitHub Release with the list of merged PRs since the
+# previous tag. Publishing the draft (manually) triggers `release-deploy.yml`.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write       # create/update releases and tags
+  pull-requests: read   # release-drafter reads merged PRs to build the changelog
+
+jobs:
+  update-draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout (with full history for `git describe`)
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Compute next version (YYYY.MM.N, N starts at 0 each month)
+        id: version
+        run: |
+          set -euo pipefail
+          declare -i newpost
+          latest=$(git describe --tags "$(git rev-list --tags --max-count=1)" 2>/dev/null || echo "0.0.0")
+          latestpre=$(echo "${latest}" | awk -F. '{print $1 "." $2}')
+          datepre=$(date --utc '+%Y.%m')
+
+          if [ "${latestpre}" = "${datepre}" ]; then
+              latestpost=$(echo "${latest}" | awk -F. '{print $3}')
+              # 10# forces base-10 parsing so "08" doesn't get treated as octal.
+              newpost=$((10#${latestpost} + 1))
+          else
+              newpost=0
+          fi
+
+          version="${datepre}.${newpost}"
+          echo "Latest tag:   ${latest}"
+          echo "New version:  ${version}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Run release-drafter
+        uses: release-drafter/release-drafter@v7.2.0
+        with:
+          tag:  ${{ steps.version.outputs.version }}
+          name: ${{ steps.version.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
