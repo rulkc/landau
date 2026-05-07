@@ -1,0 +1,101 @@
+name: Spell check
+
+# Two-stage spell check on markdown sources:
+#   1. codespell  — fast English typo scan against the project's word list.
+#   2. hunspell   — RU + EN dictionary check via scripts/spellcheck.sh,
+#                   with project-specific words in .spellcheck-allow.txt.
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: spelling-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prettify-allowlist:
+    # Auto-sort `.spellcheck-allow.txt` and silently push back the change.
+    # Runs only on push to a branch (a `pull_request` event uses the merge
+    # ref, and a tag push leaves a detached HEAD where `git push` can't go).
+    # GITHUB_TOKEN-authored pushes do not retrigger workflows, so this
+    # cannot loop on itself.
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Sort .spellcheck-allow.txt
+        run: |
+          set -euo pipefail
+          LC_ALL=C sort -u .spellcheck-allow.txt -o .spellcheck-allow.txt
+
+      - name: Commit and push if changed
+        run: |
+          set -euo pipefail
+          if git diff --quiet .spellcheck-allow.txt; then
+            echo "Already sorted — nothing to do."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .spellcheck-allow.txt
+          git commit -m "ci(spelling): sort .spellcheck-allow.txt"
+          git push
+
+  codespell:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Install codespell
+        run: pip install --user 'codespell==2.4.1'
+
+      - name: Run codespell
+        run: ~/.local/bin/codespell --config .codespellrc
+
+  hunspell:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      # Pinned LibreOffice/dictionaries commit (2026-04-15). We pull dicts
+      # directly from upstream because Ubuntu's hunspell-ru/-en-us packages
+      # interact with PostgreSQL's dict triggers on the GitHub Actions
+      # ubuntu-24.04 runner image and end up stripping .aff/.dic files
+      # from /usr/share/hunspell/ on install.
+      DICT_REF: e4ad1862342d7e1365978499ca951ae4788c9dc0
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Install hunspell binary
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends hunspell
+
+      - name: Fetch dictionaries from LibreOffice/dictionaries (pinned)
+        run: |
+          set -euo pipefail
+          dir="${HOME}/.hunspell-dicts"
+          mkdir -p "${dir}"
+          base="https://raw.githubusercontent.com/LibreOffice/dictionaries/${DICT_REF}"
+          curl -fsSL --retry 3 "${base}/ru_RU/ru_RU.aff" -o "${dir}/ru_RU.aff"
+          curl -fsSL --retry 3 "${base}/ru_RU/ru_RU.dic" -o "${dir}/ru_RU.dic"
+          curl -fsSL --retry 3 "${base}/en/en_US.aff"    -o "${dir}/en_US.aff"
+          curl -fsSL --retry 3 "${base}/en/en_US.dic"    -o "${dir}/en_US.dic"
+          ls -la "${dir}"
+          echo "DICPATH=${dir}" >> "$GITHUB_ENV"
+
+      - name: Run spellcheck
+        run: bash scripts/spellcheck.sh

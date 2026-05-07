@@ -1,0 +1,152 @@
+name: Deploy
+
+# Build Hugo site (pinned) and rsync to one of two targets, depending
+# on what fired the workflow:
+#
+#   * `release: published` (or manual `workflow_dispatch`) → production:
+#     `${DEPLOY_SSH_PATH}` on the server. Footer shows the release tag.
+#     After a successful deploy, prune published releases past the 7
+#     most recent (and their git tags).
+#
+#   * `push: main` → beta: `${DEPLOY_SSH_PATH}.beta` on the same server.
+#     Footer shows `beta-<short-sha>`. No release pruning.
+#
+# Required repository secrets:
+#   DEPLOY_SSH_KEY         private key (full PEM, including BEGIN/END lines)
+#   DEPLOY_SSH_HOST        target hostname
+#   DEPLOY_SSH_USER        SSH login user
+#   DEPLOY_SSH_PATH        absolute path on server for prod (no trailing slash);
+#                          beta deploys append `.beta` to this path
+#   DEPLOY_SSH_KNOWNHOSTS  output of `ssh-keyscan -t ed25519,rsa <host>`
+#
+# Hugo version + tarball checksum live in `.hugo-version` and `.hugo-sha256`
+# at repo root and are bumped by `.github/workflows/hugo-update.yml`.
+
+on:
+  release:
+    types: [published]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  # Beta and prod deploys serialize independently — beta running doesn't
+  # block prod and vice versa. Within each lane, queue rather than cancel
+  # so we don't overwrite newer content with older.
+  group: deploy-${{ github.event_name == 'push' && 'beta' || 'prod' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # for the prune-old-releases step (release event only)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout (full history for `git describe`)
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Determine deploy target and version
+        id: target
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # Push to main → beta path, short-SHA-stamped beta version.
+            echo "path_suffix=.beta" >> "$GITHUB_OUTPUT"
+            echo "version=beta-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+            echo "Target: beta | Version: beta-${GITHUB_SHA::7}"
+          else
+            # Release published or manual dispatch → prod path, tag-stamped version.
+            if [ -n "${{ github.event.release.tag_name }}" ]; then
+              version="${{ github.event.release.tag_name }}"
+            else
+              version=$(git describe --tags --abbrev=0 2>/dev/null || echo "dev")
+            fi
+            echo "path_suffix=" >> "$GITHUB_OUTPUT"
+            echo "version=${version}" >> "$GITHUB_OUTPUT"
+            echo "Target: prod | Version: ${version}"
+          fi
+
+      - name: Read pinned Hugo version + SHA256
+        id: pin
+        run: |
+          set -euo pipefail
+          version=$(tr -d '[:space:]' < .hugo-version)
+          sha256=$(tr -d '[:space:]' < .hugo-sha256)
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "sha256=${sha256}"   >> "$GITHUB_OUTPUT"
+
+      - name: Install Hugo extended (linux-amd64, pinned + SHA256-verified)
+        env:
+          HUGO_VERSION: ${{ steps.pin.outputs.version }}
+          HUGO_SHA256:  ${{ steps.pin.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          tarball="hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+          url="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${tarball}"
+          curl -fsSL --retry 3 "${url}" -o /tmp/hugo.tar.gz
+          echo "${HUGO_SHA256}  /tmp/hugo.tar.gz" | sha256sum -c -
+          mkdir -p "${RUNNER_TEMP}/hugo"
+          tar -xzf /tmp/hugo.tar.gz -C "${RUNNER_TEMP}/hugo" hugo
+          "${RUNNER_TEMP}/hugo/hugo" version
+          echo "${RUNNER_TEMP}/hugo" >> "$GITHUB_PATH"
+
+      - name: Build site (with version embedded)
+        run: |
+          set -euo pipefail
+          export HUGO_PARAMS_VERSION="${{ steps.target.outputs.version }}"
+          hugo --gc --minify --logLevel info --panicOnWarning
+
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY:        ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_SSH_KNOWNHOSTS: ${{ secrets.DEPLOY_SSH_KNOWNHOSTS }}
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          umask 077
+          printf '%s\n' "${DEPLOY_SSH_KEY}"        > ~/.ssh/deploy_key
+          printf '%s\n' "${DEPLOY_SSH_KNOWNHOSTS}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/deploy_key
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy via rsync
+        env:
+          DEPLOY_SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          DEPLOY_SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
+          DEPLOY_SSH_PATH: ${{ secrets.DEPLOY_SSH_PATH }}
+          PATH_SUFFIX:     ${{ steps.target.outputs.path_suffix }}
+        run: |
+          set -euo pipefail
+          rsync -az --delete \
+                --exclude='.well-known/' \
+                -e "ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts -o StrictHostKeyChecking=yes" \
+                public/ \
+                "${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}:${DEPLOY_SSH_PATH}${PATH_SUFFIX}/"
+
+      - name: Prune old published releases (release event only, keep 7 most recent)
+        if: github.event_name == 'release' && success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # First page (up to 100) is plenty: we delete >>1 per run, so even if
+          # the repo somehow grows past 100 published releases, this converges.
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "repos/${{ github.repository }}/releases?per_page=100" \
+            --jq '[.[] | select(.draft == false)] | sort_by(.published_at) | reverse | .[7:] | .[] | "\(.id) \(.tag_name)"' \
+          | while read -r rel_id tag_name; do
+              [ -n "${rel_id:-}" ] || continue
+              echo "Deleting release ${rel_id} (tag ${tag_name})"
+              gh api -X DELETE \
+                -H "Accept: application/vnd.github+json" \
+                "repos/${{ github.repository }}/releases/${rel_id}"
+              gh api -X DELETE \
+                -H "Accept: application/vnd.github+json" \
+                "repos/${{ github.repository }}/git/refs/tags/${tag_name}" || true
+            done

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="{{ site.Language.Locale | default "ru" }}">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+  <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
+  <link rel="canonical" href="{{ .Permalink }}">
+  <meta property="og:type" content="{{ if .IsHome }}website{{ else }}article{{ end }}">
+  <meta property="og:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }}{{ end }}">
+  <meta property="og:url" content="{{ .Permalink }}">
+  <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
+  {{ with .OutputFormats.Get "rss" -}}
+  <link rel="alternate" type="application/rss+xml" href="{{ .RelPermalink }}" title="{{ site.Title }}">
+  {{- end }}
+  <link rel="icon" type="image/svg+xml" href="{{ "/favicon.svg" | relURL }}">
+  <link rel="stylesheet" href="{{ "/css/hacker.css" | relURL }}">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a id="a-title" href="{{ "/" | relURL }}">
+        <h1>{{ site.Title }}</h1>
+      </a>
+      <h2>{{ site.Params.description }}</h2>
+    </div>
+  </header>
+
+  <div class="container">
+    <section id="main_content">
+      {{ block "main" . }}{{ end }}
+    </section>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p class="version">ver.{{ with site.Params.version }}{{ . }}{{ else }}dev{{ end }}</p>
+    </div>
+  </footer>
+</body>
+</html>

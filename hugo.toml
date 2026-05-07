@@ -1,0 +1,30 @@
+baseURL = "https://landau.one/"
+defaultContentLanguage = "ru"
+title = "LANDAU Kernel"
+
+[languages]
+  [languages.ru]
+    locale = "ru"
+    weight = 1
+
+# Emit relative URLs in HTML output. RSS/sitemap/canonical/og:url still use baseURL
+# (those need to be absolute by spec).
+relativeURLs = true
+canonifyURLs = false
+
+# Don't emit category/tag taxonomy pages until we actually need them.
+disableKinds = ["taxonomy", "term"]
+
+enableRobotsTXT = true
+enableEmoji = true
+
+[params]
+  description = "Linux kernel Advanced for Next-gen Devices & Architectures"
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = true  # _index.md and event page use inline <a><img>/<br>; preserve.
+
+[outputs]
+  home    = ["html", "rss"]
+  section = ["html", "rss"]

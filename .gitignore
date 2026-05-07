@@ -1,0 +1,10 @@
+# Hugo build output and caches
+public/
+resources/_gen/
+.hugo_build.lock
+
+# OS / editor cruft
+.DS_Store
+.idea/
+.vscode/
+*.swp
