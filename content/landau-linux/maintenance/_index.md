@@ -1,6 +1,7 @@
+---
 title: "📋 Манифест сопровождения ядра LANDAU Linux"
 description: "Описание процесса разработки ядра LANDAU Linux — ветки, релизы, версионирование и сопровождение"
-published: true
+draft: false
 ---
 
 # 📋 Манифест процесса сопровождения ядра LANDAU Linux
