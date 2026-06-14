@@ -1,0 +1,15 @@
+name: "LANDAU Hacker"
+license: "CC0-1.0"
+licenselink: "https://gitflic.ru/project/maquefel/landau-hacker/LICENSE"
+description: "Порт темы Hacker от GitHub Pages с доработками для LANDAU"
+homepage: "https://landau.one"
+tags: ["blog", "dark", "minimal", "technical"]
+features: ["blog", "news", "events"]
+min_version: "0.112.0"
+
+author:
+  name: "RULKC"
+
+original:
+  name: "pages-themes/hacker"
+  repo: "https://github.com/pages-themes/hacker"
