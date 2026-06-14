@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="{{ site.Language.Lang | default "ru" }}">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>404 — Страница не найдена · {{ site.Title }}</title>
+  <meta name="description" content="Запрошенная страница не существует на сайте LANDAU">
+  <link rel="canonical" href="{{ .Permalink }}">
+  <link rel="icon" type="image/svg+xml" href="{{ "/favicon.svg" | relURL }}">
+  <link rel="stylesheet" href="{{ "/css/hacker.css" | relURL }}">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a id="a-title" href="{{ "/" | relURL }}">
+        <h1>{{ site.Title }}</h1>
+      </a>
+      <h2>{{ site.Params.description }}</h2>
+    </div>
+  </header>
+
+  <div class="container">
+    <section id="main_content">
+      <h1>404</h1>
+      <p>Страница не найдена. Возможно, она была перемещена или удалена.</p>
+      <p>Проверьте правильность адреса или вернитесь на <a href="{{ "/" | relURL }}">главную страницу</a>.</p>
+      <hr>
+      <p><small>Если вы уверены, что страница должна существовать, свяжитесь с нами через <a href="https://t.me/linux_kernel_O">Telegram-канал</a>.</small></p>
+    </section>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p class="version">ver.{{ with site.Params.version }}{{ . }}{{ else }}dev{{ end }}</p>
+    </div>
+  </footer>
+</body>
+</html>
