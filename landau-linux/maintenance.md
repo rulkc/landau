@@ -1,5 +1,5 @@
 title: "📋 Манифест сопровождения ядра LANDAU Linux"
-description: "Официальный процесс maintenance ядра LANDAU Linux — версионирование, ветки, релизы и LTS"
+description: "Описание процесса разработки ядра LANDAU Linux — ветки, релизы, версионирование и сопровождение"
 published: true
 ---
 
