@@ -59,7 +59,8 @@ VERSION.PATCHLEVEL.SUBLEVEL.lXYZ
 | `VERSION` | `7` | Мажорная версия ядра |
 | `PATCHLEVEL` | `0` | Минорная версия ядра |
 | `SUBLEVEL` | `12` | Номер стабильного обновления ядра |
-| `lXYZ` | `l0`, `l1` | Сборочный номер LANDAU Linux |
+| `l-rcX` | `l-rc1`, `l-rc2` | Сборочный номер отладочного релиза LANDAU Linux |
+| `lXYZ` | `l0`, `l1` | Сборочный номер стабильного релиза LANDAU Linux |
 
 
 ### 🏷️ Git-теги
@@ -67,10 +68,11 @@ VERSION.PATCHLEVEL.SUBLEVEL.lXYZ
 Используются **аннотированные теги** в формате:
 
 ```
+v7.0.l-rcX
 v7.0.lXYZ
 ```
 
-Пример: `v7.0.l0`, `v7.0.l5`
+Пример: `v7.0.l-rc1`, `v7.0.l0`, `v7.0.l5`
 
 ---
 
