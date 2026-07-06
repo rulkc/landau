@@ -21,8 +21,8 @@ V - VERSION - major версия ядра Linux
 P - PATCHLEVEL - middle версия ядра Linux
 S - SUBLEVEL - minor версия ядра Linux
 E - EXTRAVERSION - поле в версии ядра Linux, в которое встраивается версия ядра LANDAU Linux (ядром Linux обычно используется для -rc релизов (testing фазы))
-RMW - Rebase & Merge Window - временной отрезок, в рамках которого мейнтейнеры LANDAU ребейзят свой changelog на новую базовую версию ядра.
-Bundle - в общем случае это changelog LANDAU Linux, который отличается от upstream (группа патч серий). Есть общий LANDAU Linux Bundle, а есть Bundle-ы мейнтейнеров в их форках.
+RMW - Rebase & Merge Window - временной отрезок, в рамках которого мейнтейнеры LANDAU переносят подопечный им набор изменений на новую базовую версию ядра.
+Bundle - в общем случае это полный набор изменений репозитория LANDAU Linux, который отличает его от оригинального репозитория ядра Linux (фактически это набор патч-серий). Есть общий LANDAU Linux Bundle, а есть Bundle-ы мейнтейнеров в их форках.
 
 ### 📁 Структура репозитория
 
