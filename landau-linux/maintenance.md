@@ -84,22 +84,104 @@ v7.0.lXYZ
 | `landau-next` | GIT-ветка следующего релиза LANDAU Linux, куда мейтейнеры отсылают свои MR |
 | `landau-V.P.y` | Текущая GIT-ветка для релиза LANDAU Linux на базе <u>стабильного</u> ядра Linux с версией V.P |
 
-### ⏳ Жизненный цикл GIT-ветки
+### ⏳ Жизненный цикл GIT-веток
 
 ```mermaid
-graph LR
-    A[Создание GIT-ветки<br>landau-7.0.y] --> B[Активная разработка<br>и выпуск релизов]
-    B --> C{Тип поддержки?}
-    C -->|Обычное ядро| D[EOL исходной версии →<br>GIT-ветка архивируется]
-    C -->|LTS ядро| E[Поддержка до EOL исходной версии<br>только исправления]
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'background': '#002b36',
+    'primaryColor': '#073642',
+    'primaryTextColor': '#839496',
+    'primaryBorderColor': '#586e75',
+    'lineColor': '#b58900',
+    'secondaryColor': '#002b36',
+    'tertiaryColor': '#073642',
+    'edgeLabelBackground': '#002b36',
+    'nodeBorder': '#586e75',
+    'nodeTextColor': '#93a1a1',
+    'clusterBkg': '#002b36',
+    'clusterBorder': '#586e75',
+    'fontSize': '20px',
+    'fontFamily': 'monospace'
+  },
+  'flowchart': {
+    'nodeSpacing': 80,
+    'rankSpacing': 30,
+    'curve': 'basis',
+    'padding': 10
+  }
+}}%%
+flowchart TB
+    subgraph Block1["Подготовка релиза (этап RC)"]
+        direction LR
+        A["<b>landau-next</b> → <b>linux-V.P.y</b>"]
+        B["Стабилизация <b>landau-next</b>"]
+        C{"Код<br><b>landau-next</b> стабилен?"}
+        D(("•••"))
+        E["P = P + 1"]
+
+        A --> B
+        B --> C
+        C -->|Нет| B
+        C -->|Да| D
+        C -->|Да| E
+        E -.->|Ожидание релиза P| A
+    end
+```
+
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'background': '#002b36',
+    'primaryColor': '#073642',
+    'primaryTextColor': '#839496',
+    'primaryBorderColor': '#586e75',
+    'lineColor': '#b58900',
+    'secondaryColor': '#002b36',
+    'tertiaryColor': '#073642',
+    'edgeLabelBackground': '#002b36',
+    'nodeBorder': '#586e75',
+    'nodeTextColor': '#93a1a1',
+    'clusterBkg': '#002b36',
+    'clusterBorder': '#586e75',
+    'fontSize': '20px',
+    'fontFamily': 'monospace'
+  },
+  'flowchart': {
+    'nodeSpacing': 80,
+    'rankSpacing': 30,
+    'curve': 'basis',
+    'padding': 10
+  }
+}}%%
+flowchart TB
+    subgraph Block2["Релиз LANDAU Linux"]
+        direction LR
+        A(("•••"))
+        B["<b>landau-V.P.y</b> → <b>landau-next</b>"]
+        C["Поддержка <b>landau-V.P.y</b>"]
+        D{"Статус<br><b>linux-V.P.y</b> <b>EOL</b>?"}
+        E["Архивация <b>landau-V.P.y</b>"]
+
+        A --> B
+        B --> C
+        C --> D
+        D -->|Нет| C
+        D -->|Да| E
+    end
 ```
 
 | Стадия | Действие |
 |--------|----------|
-| 🆕 Создание | В момент релиза базовой версии ядра Linux |
-| 🔧 Разработка | GIT-ветка `landau-7.0.y` |
-| 🛑 Окончание поддержки | Исходная версия достигает EOL |
-| 🐢 LTS | Только исправления (без новых фич) |
+| 🛑 Старт | Принудительное переназначение `landau-next` на базовую версию ядра Linux |
+| 🔧 Разработка | Сбор и стабилизация изменений LANDAU в GIT-ветке `landau-next` |
+| 🆕 Релиз | Создание `landau-V.P.y` на основе стабильной `landau-next` |
+| 🔧 Поддержка | Сбор исправлений ошибок в GIT-ветке `landau-V.P.y` |
+| 🐢 Окончание поддержки | Исходная версия достигает EOL |
+
+> В базовом представлении _поддержка_ подразумевает периодическую синхронизацию `landau-V.P.y` с исходной GIT-веткой `linux-V.P.y`.
 
 ---
 
