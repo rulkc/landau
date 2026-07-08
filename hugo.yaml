@@ -1,6 +1,6 @@
 baseurl: "/"
 languageCode: "ru"
-title: "LANDAU Kernel"
+title: "LANDAU"
 theme: "landau-hacker"
 googleAnalytics: ""
 disqusShortname: ""
@@ -29,9 +29,9 @@ params:
   mainSections:
     - git
     - doc
-  description: "Linux kernel Advanced for Next-gen Devices & Architectures"
+  description: "Linux And Neo-Depositorium Associated Unity"
   # PaperMod doesn't like this
-  # footer: "&copy; [Landau Unlimited](https://blog.landau.org/) 2026 -- {Year}"
+  # footer: "&copy; [Landau Unlimited](https://blog.landau.one/) 2026 -- {Year}"
 
 markup:
   highlight:
