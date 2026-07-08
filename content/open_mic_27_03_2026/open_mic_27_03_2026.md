@@ -83,4 +83,4 @@
 📧 [rulinuxkc@gmail.com](mailto:rulinuxkc@gmail.com)
 💬 [t.me/linux_kernel_O](https://t.me/linux_kernel_O)
 
-[⬅️ Вернуться на главную страницу LANDAU](./index.md)
+[⬅️ Вернуться на главную страницу LANDAU](../)
