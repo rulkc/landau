@@ -579,4 +579,4 @@ TODO
   <span>📅 <strong>Обновлено:</strong> 2026-07</span>
 </div>
 
-[⬅️ Вернуться на страницу LANDAU Linux](./index.md)
+[⬅️ Вернуться на страницу LANDAU Linux](../)

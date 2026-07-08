@@ -31,9 +31,9 @@ ODM-производителей, создателей дистрибутиво�
 
 | Документ | Описание |
 |----------|----------|
-| 📋 **[LANDAU Linux Maintenance](./maintenance.md)** | Официальный процесс maintenance LANDAU Linux |
+| 📋 **[LANDAU Linux Maintenance](./maintenance/)** | Официальный процесс maintenance LANDAU Linux |
 
 ---
 
-[⬅️ Вернуться на главную LANDAU](../index.md)
+[⬅️ Вернуться на главную LANDAU](../)
 
