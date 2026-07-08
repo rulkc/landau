@@ -1,3 +1,3 @@
-# ⚛️ LANDAU Kernel
+# ⚛️ LANDAU
 
-**⚡ Linux kernel Advanced for Next-gen Devices & Architectures ⚡**
+**⚡ **Linux And Neo-Depositorium Associated Unity** ⚡**
