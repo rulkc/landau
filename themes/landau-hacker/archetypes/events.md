@@ -32,7 +32,7 @@ draft: true
 ---
 
 **Контактное лицо:** RULKC
-📧 [rulinuxkc@gmail.com](mailto:rulinuxkc@gmail.com)
+📧 [rulkc@rulkc.org](mailto:rulkc@rulkc.org)
 💬 [t.me/linux_kernel_O](https://t.me/linux_kernel_O)
 
 [⬅️ Вернуться на главную страницу LANDAU](/)
