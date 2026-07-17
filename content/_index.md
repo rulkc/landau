@@ -53,7 +53,7 @@ LANDAU охватывает широкий спектр open-source проект
 | Канал | Ссылка |
 |-------|--------|
 | 🏠 **Основной сайт** | [rulkc.org](https://rulkc.org) |
-| 📧 **Mail** | [rulinuxkc@gmail.com](mailto:rulinuxkc@gmail.com) |
+| 📧 **Mail** | [rulkc@rulkc.org](mailto:rulck@ruclk.org) |
 | 💬 **Telegram-канал** | [https://t.me/linux_kernel_O](https://t.me/linux_kernel_O) |
 | 🐙 **GitHub** | [github.com/rulkc](https://github.com/rulkc) |
 | 📧 **Mailing List** | [rulkc@linuxtesting.org](mailto:rulkc@linuxtesting.org) |
@@ -73,7 +73,7 @@ LANDAU развивается под эгидой [**Russian Linux Kernel Commun
 | Канал | Ссылка |
 |-------|--------|
 | 🏠 **Основной сайт** | [rulkc.org](https://rulkc.org) |
-| 📧 **Mail** | [rulinuxkc@gmail.com](mailto:rulinuxkc@gmail.com) |
+| 📧 **Mail** | [rulkc@rulkc.org](mailto:rulkc@rulkc.org) |
 | 💬 **Telegram-канал** | [t.me/linux_kernel_O](https://t.me/linux_kernel_O) |
 | 🐙 **GitHub** | [github.com/rulkc](https://github.com/rulkc) |
 
