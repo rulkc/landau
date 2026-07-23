@@ -33,7 +33,8 @@ LANDAU Linux с отслеживанием оригинального репоз
 
 ### 🪞 Зеркала оригинальных репозиториев Linux
 
-На сервере `https://git.rulkc.org` поддерживаются постоянно обновляемые зеркала:
+На сервере **[git.rulkc.org](https://git.rulkc.org)** поддерживаются постоянно
+обновляемые зеркала:
 
 - 🔷 `torvalds/linux` — основная ветка ядра Linux
 - 🔷 `stable/linux` — стабильные релизы ядра Linux
@@ -566,9 +567,9 @@ TODO
 
 | Ресурс | URL |
 |--------|-----|
-| 📦 Репозитории LANDAU | `https://git.rulkc.org/pub/scm/landau` |
-| 🪞 Зеркала репозиториев Linux| `https://git.rulkc.org` |
-| 🔗 Оригинальные репозитории Linux | `https://kernel.org` |
+| 📦 Репозитории LANDAU Linux | [https://git.rulkc.org/pub/scm/landau](https://git.rulkc.org/pub/scm/landau) |
+| 🪞 Зеркала репозиториев Linux | [https://git.rulkc.org](https://git.rulkc.org) |
+| 🔗 Оригинальные репозитории Linux | [https://kernel.org](https://kernel.org) |
 
 ---
 
