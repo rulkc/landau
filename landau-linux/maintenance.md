@@ -573,8 +573,10 @@ TODO
 
 ---
 
-> 📌 **Актуальная версия документа**: 1.0  
-> ✍️ **Поддерживается**: LANDAU Maintainers
-> 📅 **Последнее обновление**: 2026
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; margin-top: 2rem; border-top: 1px solid #30363d; font-size: 14px; flex-wrap: wrap; gap: 10px;">
+  <span>📌 <strong>Актуальная версия:</strong> 1.0</span>
+  <span>✍️ <strong>Поддерживается:</strong> LANDAU Maintainers</span>
+  <span>📅 <strong>Обновлено:</strong> 2026-07</span>
+</div>
 
 [⬅️ Вернуться на страницу LANDAU Linux](./index.md)
