@@ -1,0 +1,7 @@
+aaaaaaaaaa{{- warnf "codeblock hook triggered for %s" .Position -}}
+{{- $lang := .Attributes.lang | default "" -}}
+{{- if eq $lang "mermaid" -}}
+  <pre class="mermaid">{{ .Inner | safeHTML }}</pre>
+{{- else -}}
+  <pre><code class="language-{{ $lang }}">{{ .Inner | safeHTML }}</code></pre>
+{{- end -}}

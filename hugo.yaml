@@ -1,0 +1,41 @@
+baseurl: "/"
+languageCode: "ru"
+title: "LANDAU"
+theme: "landau-hacker"
+googleAnalytics: ""
+disqusShortname: ""
+ignoreFiles: ["\\.Rmd$", "\\.Rmarkdown$", "_cache$", "\\.knit\\.md$", "\\.utf8\\.md$"]
+footnotereturnlinkcontents: "↩"
+disableKinds : ["taxonomy", "term"]
+relativeURLs: true
+canonifyURLs: false
+
+permalinks:
+  note: "/note/:year/:month/:day/:slug/"
+  post: "/post/:year/:month/:day/:slug/"
+
+menu:
+  main:
+    - name: Home
+      url: ""
+      weight: 1
+    - name: About
+      url: "index.html"
+      weight: 2
+    - name: Subscribe
+      url: "index.xml"
+
+params:
+  mainSections:
+    - git
+    - doc
+  description: "Linux And Neo-Depositorium Associated Unity"
+  # PaperMod doesn't like this
+  # footer: "&copy; [Landau Unlimited](https://blog.landau.one/) 2026 -- {Year}"
+
+markup:
+  highlight:
+    codeFences: false
+  goldmark:
+    renderer:
+      unsafe: true
